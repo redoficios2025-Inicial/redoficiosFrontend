@@ -1,3 +1,8 @@
+// app/generarWhatsapp/page.tsx
+"use client";
+
+import React from "react";
+
 // Tipos TypeScript
 interface Perfil {
   nombre: string;
@@ -29,29 +34,28 @@ export const generarEnlaceWhatsApp = (telefono: string, nombre: string): string 
 // Función para generar el texto que se envía por WhatsApp
 export const obtenerTextoTarjeta = (usuario: Usuario): string => {
   let texto = `✨ *${usuario.perfil.nombre}*\n`;
-  
+
   if (usuario.perfil.profesion) texto += `💼 ${usuario.perfil.profesion}\n`;
   if (usuario.perfil.localidad) texto += `📍 ${usuario.perfil.localidad}\n`;
   texto += `👤 Rol: ${usuario.rol}\n`;
-  
+
   if (usuario.perfil.calificacion) {
     texto += `⭐ Calificación: ${usuario.perfil.calificacion.toFixed(1)}/5\n`;
   }
-  
+
   if (usuario.perfil.precio) {
     texto += `💰 Precio: $${usuario.perfil.precio.toLocaleString("es-AR")}\n`;
   }
-  
+
   if (usuario.perfil.etiquetas && usuario.perfil.etiquetas.length > 0) {
     texto += `🏷️ Especialidades: ${usuario.perfil.etiquetas.join(", ")}\n`;
   }
-  
-  // ✅ Mostrar el número como link de WhatsApp
+
   if (usuario.perfil.telefono) {
     const numeroLimpio = usuario.perfil.telefono.replace(/\D/g, "");
     texto += `\n📞 Contactame: https://wa.me/${numeroLimpio}`;
   }
-  
+
   return texto;
 };
 
@@ -63,12 +67,9 @@ export const compartirPerfilPorWhatsApp = (usuario: Usuario): void => {
 };
 
 // Componente React para mostrar el número clickeable en la UI
-export const ContactarWhatsApp: React.FC<ContactarWhatsAppProps> = ({ 
-  telefono, 
-  nombre 
-}) => {
+export const ContactarWhatsApp: React.FC<ContactarWhatsAppProps> = ({ telefono, nombre }) => {
   const link = generarEnlaceWhatsApp(telefono, nombre);
-  
+
   return (
     <a
       href={link}
@@ -81,3 +82,35 @@ export const ContactarWhatsApp: React.FC<ContactarWhatsAppProps> = ({
   );
 };
 
+// --- Componente de página por defecto ---
+export default function GenerarWhatsappPage() {
+  const ejemploUsuario: Usuario = {
+    perfil: {
+      nombre: "Lucas Bassi",
+      profesion: "Mecánico",
+      localidad: "Alcorta",
+      calificacion: 4.7,
+      precio: 1500,
+      etiquetas: ["Reparación", "Motos"],
+      telefono: "+5493412345678",
+    },
+    rol: "empleador",
+  };
+
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Generar WhatsApp</h1>
+      <p className="mb-2">Click en el número para enviar mensaje:</p>
+      <ContactarWhatsApp
+        telefono={ejemploUsuario.perfil.telefono}
+        nombre={ejemploUsuario.perfil.nombre}
+      />
+      <button
+        onClick={() => compartirPerfilPorWhatsApp(ejemploUsuario)}
+        className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+      >
+        Enviar mensaje completo
+      </button>
+    </div>
+  );
+}
