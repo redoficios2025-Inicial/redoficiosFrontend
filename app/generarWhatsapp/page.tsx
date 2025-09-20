@@ -1,8 +1,3 @@
-// app/generarWhatsapp/page.tsx
-"use client";
-
-import React from "react";
-
 // Tipos TypeScript
 interface Perfil {
   nombre: string;
@@ -20,42 +15,43 @@ interface Usuario {
 }
 
 interface ContactarWhatsAppProps {
-  telefono: string;
-  nombre: string;
+  telefono?: string; // ahora opcional
+  nombre?: string;   // ahora opcional
 }
 
 // Genera el link de WhatsApp (para el link en la UI)
-export const generarEnlaceWhatsApp = (telefono: string, nombre: string): string => {
-  const nro = telefono.replace(/\D/g, ""); // quita símbolos
-  const mensaje = `Hola ${nombre}, vi tu perfil en RedOficios y me interesa coordinar un servicio.`;
+export const generarEnlaceWhatsApp = (telefono?: string, nombre?: string): string => {
+  const nro = (telefono || "").replace(/\D/g, ""); // siempre string
+  const mensaje = `Hola ${nombre || "usuario"}, vi tu perfil en RedOficios y me interesa coordinar un servicio.`;
   return `https://api.whatsapp.com/send?phone=${nro}&text=${encodeURIComponent(mensaje)}`;
 };
 
 // Función para generar el texto que se envía por WhatsApp
 export const obtenerTextoTarjeta = (usuario: Usuario): string => {
-  let texto = `✨ *${usuario.perfil.nombre}*\n`;
-
+  let texto = `✨ *${usuario.perfil.nombre || "Sin nombre"}*\n`;
+  
   if (usuario.perfil.profesion) texto += `💼 ${usuario.perfil.profesion}\n`;
   if (usuario.perfil.localidad) texto += `📍 ${usuario.perfil.localidad}\n`;
-  texto += `👤 Rol: ${usuario.rol}\n`;
-
-  if (usuario.perfil.calificacion) {
+  texto += `👤 Rol: ${usuario.rol || "Sin rol"}\n`;
+  
+  if (usuario.perfil.calificacion !== undefined) {
     texto += `⭐ Calificación: ${usuario.perfil.calificacion.toFixed(1)}/5\n`;
   }
-
-  if (usuario.perfil.precio) {
+  
+  if (usuario.perfil.precio !== undefined) {
     texto += `💰 Precio: $${usuario.perfil.precio.toLocaleString("es-AR")}\n`;
   }
-
+  
   if (usuario.perfil.etiquetas && usuario.perfil.etiquetas.length > 0) {
     texto += `🏷️ Especialidades: ${usuario.perfil.etiquetas.join(", ")}\n`;
   }
-
+  
+  // Mostrar número como link de WhatsApp
   if (usuario.perfil.telefono) {
     const numeroLimpio = usuario.perfil.telefono.replace(/\D/g, "");
     texto += `\n📞 Contactame: https://wa.me/${numeroLimpio}`;
   }
-
+  
   return texto;
 };
 
@@ -67,9 +63,12 @@ export const compartirPerfilPorWhatsApp = (usuario: Usuario): void => {
 };
 
 // Componente React para mostrar el número clickeable en la UI
-export const ContactarWhatsApp: React.FC<ContactarWhatsAppProps> = ({ telefono, nombre }) => {
+export const ContactarWhatsApp: React.FC<ContactarWhatsAppProps> = ({ 
+  telefono = "", // valor por defecto
+  nombre = "Usuario" // valor por defecto
+}) => {
   const link = generarEnlaceWhatsApp(telefono, nombre);
-
+  
   return (
     <a
       href={link}
@@ -77,40 +76,7 @@ export const ContactarWhatsApp: React.FC<ContactarWhatsAppProps> = ({ telefono, 
       rel="noopener noreferrer"
       className="text-green-600 hover:text-green-700 font-semibold underline transition-colors duration-200"
     >
-      {telefono}
+      {telefono || "Sin número"}
     </a>
   );
 };
-
-// --- Componente de página por defecto ---
-export default function GenerarWhatsappPage() {
-  const ejemploUsuario: Usuario = {
-    perfil: {
-      nombre: "Lucas Bassi",
-      profesion: "Mecánico",
-      localidad: "Alcorta",
-      calificacion: 4.7,
-      precio: 1500,
-      etiquetas: ["Reparación", "Motos"],
-      telefono: "+5493412345678",
-    },
-    rol: "empleador",
-  };
-
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Generar WhatsApp</h1>
-      <p className="mb-2">Click en el número para enviar mensaje:</p>
-      <ContactarWhatsApp
-        telefono={ejemploUsuario.perfil.telefono}
-        nombre={ejemploUsuario.perfil.nombre}
-      />
-      <button
-        onClick={() => compartirPerfilPorWhatsApp(ejemploUsuario)}
-        className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-      >
-        Enviar mensaje completo
-      </button>
-    </div>
-  );
-}
