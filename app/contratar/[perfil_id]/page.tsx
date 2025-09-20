@@ -48,7 +48,7 @@ type ContratarResponse = {
 
 const MySwal = withReactContent(Swal);
 
-export default function ContratarPage(): JSX.Element {
+export default function ContratarPage() {
   const { user } = useUser();
   const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [loading, setLoading] = useState(true);
@@ -134,27 +134,24 @@ export default function ContratarPage(): JSX.Element {
     setEnviandoSolicitud(true);
     
     try {
-      // Traer userId del localStorage
       const userId = localStorage.getItem("userId");
       if (!userId) throw new Error("No se encontró el userId en localStorage");
 
-      // Traer empleado desde localStorage
       const empleadoData = localStorage.getItem("perfilSeleccionado");
       if (!empleadoData) throw new Error("No se encontró el perfil del empleado");
 
       const empleadoPerfil: Perfil = JSON.parse(empleadoData);
 
-      // Hacer el POST enviando todos los datos
       const response = await fetch(
         `https://redoficios-back.vercel.app/api/contratacion/${params.perfil_id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            empleadorId: userId,          // ID del empleador
-            empleadoId: empleadoPerfil._id, // ID del empleado
-            empleadorDatos: user,         // Datos completos del empleador
-            empleadoDatos: empleadoPerfil // Datos completos del empleado
+            empleadorId: userId,
+            empleadoId: empleadoPerfil._id,
+            empleadorDatos: user,
+            empleadoDatos: empleadoPerfil
           }),
         }
       );
@@ -209,7 +206,6 @@ export default function ContratarPage(): JSX.Element {
   if (!perfil) return <div className="p-6 text-center text-red-500">Perfil no encontrado</div>;
   if (!user) return <div className="p-6 text-center text-red-500">Debes iniciar sesión para contratar</div>;
 
-  // Verificar si el usuario es empleador
   const esEmpleador = user.rol === "empleador";
 
   return (
@@ -273,7 +269,6 @@ export default function ContratarPage(): JSX.Element {
             <p className="text-gray-700">Rol: {user.rol}</p>
           </div>
 
-          {/* Mostrar diferentes botones según el rol del usuario */}
           {!esEmpleador ? (
             <div className="mt-6">
               <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl">
@@ -289,7 +284,6 @@ export default function ContratarPage(): JSX.Element {
               </button>
             </div>
           ) : (
-            // Solo mostrar los botones de contratación si es empleador
             <>
               {!terminosAceptados ? (
                 <button
