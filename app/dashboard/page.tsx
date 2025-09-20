@@ -196,12 +196,14 @@ export default function Dashboard() {
     // 2. AGREGAR ESTA FUNCIÓN DENTRO DEL COMPONENTE Dashboard (después de handleCambiarRol)
     const handleCompartirPerfil = () => {
         if (usuario) {
-            compartirPerfilPorWhatsApp(usuario);
+            compartirPerfilPorWhatsApp({
+                ...usuario,
+                rol: usuario.rol || "visitante", // Aseguramos que rol siempre sea string
+            });
         } else {
             Swal.fire("Error", "No se pudieron cargar los datos del usuario", "error");
         }
     };
-
 
 
     // ----------------------------
