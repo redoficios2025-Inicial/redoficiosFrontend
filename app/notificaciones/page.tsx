@@ -63,9 +63,15 @@ export default function Notificaciones() {
                 setNotificaciones(data.data || []);
                 console.log("Datos que llegan del BACKEND:", data.data);
 
-            } catch (err) {
+            } catch (err: unknown) {
                 console.error("Error al obtener notificaciones:", err);
-                setError(err.message || "Ocurrió un error");
+
+                // Guard clause para acceder a message si existe
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError("Ocurrió un error");
+                }
             } finally {
                 setLoading(false);
             }
@@ -73,6 +79,7 @@ export default function Notificaciones() {
 
         fetchNotificaciones();
     }, []);
+
 
     // Filtrar notificaciones según el usuario logueado
     useEffect(() => {
@@ -176,7 +183,12 @@ export default function Notificaciones() {
     };
 
     const handleCalificarClick = (notificacion: Notificacion) => {
-        const isEmpleado = user.rol.toLowerCase() === "empleado";
+        if (!user) {
+            Swal.fire("Error", "No hay usuario logueado", "error");
+            return;
+        }
+
+        const isEmpleado = user.rol?.toLowerCase() === "empleado";
 
         // Determinar qué persona se va a calificar según el rol del usuario logueado
         const personaACalificar = isEmpleado ? notificacion.empleador : notificacion.empleado;
