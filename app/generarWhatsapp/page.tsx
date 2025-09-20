@@ -1,24 +1,50 @@
+// Tipos TypeScript
+interface Perfil {
+  nombre: string;
+  profesion?: string;
+  localidad?: string;
+  calificacion?: number;
+  precio?: number;
+  etiquetas?: string[];
+  telefono?: string;
+}
+
+interface Usuario {
+  perfil: Perfil;
+  rol: string;
+}
+
+interface ContactarWhatsAppProps {
+  telefono: string;
+  nombre: string;
+}
+
 // Genera el link de WhatsApp (para el link en la UI)
-export const generarEnlaceWhatsApp = (telefono: string, nombre: string) => {
+export const generarEnlaceWhatsApp = (telefono: string, nombre: string): string => {
   const nro = telefono.replace(/\D/g, ""); // quita símbolos
   const mensaje = `Hola ${nombre}, vi tu perfil en RedOficios y me interesa coordinar un servicio.`;
   return `https://api.whatsapp.com/send?phone=${nro}&text=${encodeURIComponent(mensaje)}`;
 };
 
 // Función para generar el texto que se envía por WhatsApp
-export const obtenerTextoTarjeta = (usuario: any) => {
+export const obtenerTextoTarjeta = (usuario: Usuario): string => {
   let texto = `✨ *${usuario.perfil.nombre}*\n`;
   
   if (usuario.perfil.profesion) texto += `💼 ${usuario.perfil.profesion}\n`;
   if (usuario.perfil.localidad) texto += `📍 ${usuario.perfil.localidad}\n`;
   texto += `👤 Rol: ${usuario.rol}\n`;
   
-  if (usuario.perfil.calificacion)
+  if (usuario.perfil.calificacion) {
     texto += `⭐ Calificación: ${usuario.perfil.calificacion.toFixed(1)}/5\n`;
-  if (usuario.perfil.precio)
+  }
+  
+  if (usuario.perfil.precio) {
     texto += `💰 Precio: $${usuario.perfil.precio.toLocaleString("es-AR")}\n`;
-  if (usuario.perfil.etiquetas?.length > 0)
+  }
+  
+  if (usuario.perfil.etiquetas && usuario.perfil.etiquetas.length > 0) {
     texto += `🏷️ Especialidades: ${usuario.perfil.etiquetas.join(", ")}\n`;
+  }
   
   // ✅ Mostrar el número como link de WhatsApp
   if (usuario.perfil.telefono) {
@@ -30,15 +56,19 @@ export const obtenerTextoTarjeta = (usuario: any) => {
 };
 
 // Función para abrir WhatsApp (envía el texto con el link)
-export const compartirPerfilPorWhatsApp = (usuario: any) => {
+export const compartirPerfilPorWhatsApp = (usuario: Usuario): void => {
   const texto = obtenerTextoTarjeta(usuario);
   const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
   window.open(url, "_blank");
 };
 
 // Componente React para mostrar el número clickeable en la UI
-export const ContactarWhatsApp = ({ telefono, nombre }: { telefono: string; nombre: string }) => {
+export const ContactarWhatsApp: React.FC<ContactarWhatsAppProps> = ({ 
+  telefono, 
+  nombre 
+}) => {
   const link = generarEnlaceWhatsApp(telefono, nombre);
+  
   return (
     <a
       href={link}
@@ -50,3 +80,4 @@ export const ContactarWhatsApp = ({ telefono, nombre }: { telefono: string; nomb
     </a>
   );
 };
+
