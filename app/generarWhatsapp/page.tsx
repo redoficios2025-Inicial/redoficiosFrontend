@@ -1,4 +1,10 @@
+"use client";
+
+import React from "react";
+
+// ----------------------
 // Tipos TypeScript
+// ----------------------
 interface Perfil {
   nombre: string;
   profesion?: string;
@@ -19,14 +25,18 @@ interface ContactarWhatsAppProps {
   nombre?: string;   // ahora opcional
 }
 
+// ----------------------
+// Funciones de WhatsApp
+// ----------------------
+
 // Genera el link de WhatsApp (para el link en la UI)
 export const generarEnlaceWhatsApp = (telefono?: string, nombre?: string): string => {
-  const nro = (telefono || "").replace(/\D/g, ""); // siempre string
+  const nro = (telefono || "").replace(/\D/g, "");
   const mensaje = `Hola ${nombre || "usuario"}, vi tu perfil en RedOficios y me interesa coordinar un servicio.`;
   return `https://api.whatsapp.com/send?phone=${nro}&text=${encodeURIComponent(mensaje)}`;
 };
 
-// Función para generar el texto que se envía por WhatsApp
+// Genera el texto que se envía por WhatsApp
 export const obtenerTextoTarjeta = (usuario: Usuario): string => {
   let texto = `✨ *${usuario.perfil.nombre || "Sin nombre"}*\n`;
   
@@ -46,7 +56,6 @@ export const obtenerTextoTarjeta = (usuario: Usuario): string => {
     texto += `🏷️ Especialidades: ${usuario.perfil.etiquetas.join(", ")}\n`;
   }
   
-  // Mostrar número como link de WhatsApp
   if (usuario.perfil.telefono) {
     const numeroLimpio = usuario.perfil.telefono.replace(/\D/g, "");
     texto += `\n📞 Contactame: https://wa.me/${numeroLimpio}`;
@@ -64,8 +73,8 @@ export const compartirPerfilPorWhatsApp = (usuario: Usuario): void => {
 
 // Componente React para mostrar el número clickeable en la UI
 export const ContactarWhatsApp: React.FC<ContactarWhatsAppProps> = ({ 
-  telefono = "", // valor por defecto
-  nombre = "Usuario" // valor por defecto
+  telefono = "", 
+  nombre = "Usuario" 
 }) => {
   const link = generarEnlaceWhatsApp(telefono, nombre);
   
@@ -80,3 +89,44 @@ export const ContactarWhatsApp: React.FC<ContactarWhatsAppProps> = ({
     </a>
   );
 };
+
+// ----------------------
+// Componente de página
+// ----------------------
+const GenerarWhatsappPage: React.FC = () => {
+  // Ejemplo de usuario
+  const usuarioEjemplo: Usuario = {
+    rol: "empleado",
+    perfil: {
+      nombre: "Juan Pérez",
+      telefono: "3412345678",
+      profesion: "Plomero",
+      localidad: "Rosario",
+      calificacion: 4.5,
+      precio: 3500,
+      etiquetas: ["Fontanería", "Reparaciones"],
+    },
+  };
+
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Perfil de contacto</h1>
+      <p>Haz clic para contactar por WhatsApp:</p>
+      <ContactarWhatsApp 
+        telefono={usuarioEjemplo.perfil.telefono} 
+        nombre={usuarioEjemplo.perfil.nombre} 
+      />
+      <div className="mt-4">
+        <button
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+          onClick={() => compartirPerfilPorWhatsApp(usuarioEjemplo)}
+        >
+          Compartir perfil completo por WhatsApp
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Obligatorio para Next.js App Router
+export default GenerarWhatsappPage;
