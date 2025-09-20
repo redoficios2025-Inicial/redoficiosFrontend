@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Image from "next/image";
+import React, { useState, useEffect } from "react";
 
 type Props = {
   contratacionId: string;
@@ -38,7 +38,8 @@ interface ApiResponse {
   message?: string;
 }
 
-export default function CalificacionForm({ contratacionId, onSuccess }: Props): JSX.Element {
+// ✅ Solo se eliminó ": JSX.Element"
+export default function CalificacionForm({ contratacionId, onSuccess }: Props) {
   const [calificacion, setCalificacion] = useState<number | null>(null);
   const [comentario, setComentario] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,14 +63,13 @@ export default function CalificacionForm({ contratacionId, onSuccess }: Props): 
         const empleadoId = datos.persona._id;
         const contratacionIdToUse = datos.contratacionId;
 
-        // 🔹 CAMBIO: Agregar contratacionId al request
         const res = await fetch(`https://redoficios-back.vercel.app/api/calificacion/obtenerCalificacion`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             calificadorId,
             empleadoId,
-            contratacionId: contratacionIdToUse // 🔹 NUEVO: incluir contratacionId
+            contratacionId: contratacionIdToUse
           }),
         });
 
@@ -107,7 +107,7 @@ export default function CalificacionForm({ contratacionId, onSuccess }: Props): 
     cargarCalificacion();
   }, []);
 
-  // Cargar datos desde sessionStorage (pasados desde notificaciones)
+  // Cargar datos desde sessionStorage
   useEffect(() => {
     try {
       const datosString = sessionStorage.getItem("datosCalificacion");
@@ -133,7 +133,6 @@ export default function CalificacionForm({ contratacionId, onSuccess }: Props): 
     }
   }, []);
 
-  // Verificar calificación cuando se cargan los datos
   useEffect(() => {
     if (datosCalificacion) {
       verificarPuedeCalificar();
@@ -247,7 +246,6 @@ export default function CalificacionForm({ contratacionId, onSuccess }: Props): 
           verificarPuedeCalificar();
         }
         setModoEdicion(false);
-        // Limpiar sessionStorage después del envío exitoso
         sessionStorage.removeItem("datosCalificacion");
         window.location.href = "/dashboard";
       });
